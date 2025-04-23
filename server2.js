@@ -31,13 +31,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
 
     // Send the file to OpenAI Whisper API for transcription  
     const transcription = await openai.audio.transcriptions.create({  
-      file: {
-        value: audioBuffer,  
-        options: {  
-          filename: fileName,       // e.g. "audio.mp3"  
-          contentType: fileMime,    // e.g. "audio/mpeg"  
-        }  
-      },
+      file: [audioBuffer, fileName, fileMime], 
       model: "gpt-4o-mini-transcribe",
       response_format: "text", // or "json"  
     });  
