@@ -25,7 +25,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
     const filePath = req.file.path;  
     // const fileName = req.file.originalname;
 
-    const outPath = filepath + '.wav'
+    const outPath = filePath + '.wav'
 
     // use ffmpeg to convert the audio file to wav format (PCM 16kHz mono)
     await new Promise((resolve, reject) => {
