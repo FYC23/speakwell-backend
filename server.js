@@ -20,11 +20,16 @@ app.use(cors()); // Allows any frontend to access (dev only; restrict for produc
 app.post('/transcribe', upload.single('file'), async (req, res) => {  
   try {  
     const filePath = req.file.path;  
+    const fileName = req.file.originalname;
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.path = fileName; // Set the original file name for the stream
 
     // Send the file to OpenAI Whisper API for transcription  
     const transcription = await openai.audio.transcriptions.create({  
-      file: fs.createReadStream(filePath),  
-      model: "whisper-1",  
+      file: fileStream, 
+    //   model: "whisper-1",  
+      model: "gpt-4o-mini-transcribe",
       response_format: "text", // or "json"  
     });  
 
