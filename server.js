@@ -23,6 +23,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
     const fileName = req.file.originalname;
 
     const fileStream = fs.createReadStream(filePath);
+    fileStream.name = fileName;
 
     console.log('File:', req.file);
 
