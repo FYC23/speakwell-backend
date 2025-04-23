@@ -18,25 +18,47 @@ const openai = new OpenAI({
 app.use(cors()); // Allows any frontend to access (dev only; restrict for production!)  
 app.use('/uploads', express.static('uploads'));  // Serve static files from the uploads directory
 
+const ffmpeg = require('fluent-ffmpeg');  
+
 app.post('/transcribe', upload.single('file'), async (req, res) => {  
   try {  
     const filePath = req.file.path;  
-    const fileName = req.file.originalname;
+    // const fileName = req.file.originalname;
 
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.name = fileName;
+    const outPath = filepath + '.wav'
+
+    // use ffmpeg to convert the audio file to wav format (PCM 16kHz mono)
+    await new Promise((resolve, reject) => {
+      ffmpeg(filePath)
+      .outputOptions([
+        '-ar 16000',
+        '-ac 1',
+        '-f wav'
+      ])
+      .on('end', resolve)
+      .on('error', reject)
+      .save(outPath);
+    });
+
+    const wavStream = fs.createReadStream(outPath); 
+    wavStream.name = req.file.originalname.replace(/\.[^/.]+$/, ".wav");
+
+    // const fileStream = fs.createReadStream(filePath);
+    // fileStream.name = fileName;
 
     console.log('File:', req.file);
 
     // Send the file to OpenAI Whisper API for transcription  
     const transcription = await openai.audio.transcriptions.create({  
-      file: fileStream, 
+      // file: fileStream, 
+      file: wavStream,
       // model: "whisper-1",  
       model: "gpt-4o-mini-transcribe",
       response_format: "text", // or "json"  
     });  
 
     fs.unlinkSync(filePath); // Delete temp file after processing  
+    fs.unlinkSync(outPath); // Delete temp file after processing
 
     // Return the transcript (with fallback, in case .text is missing)  
     res.json({ transcript: transcription.text || transcription });  
