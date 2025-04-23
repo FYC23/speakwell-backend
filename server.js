@@ -24,6 +24,8 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
 
     const fileStream = fs.createReadStream(filePath);
 
+    console.log('File:', req.file);
+
     // Send the file to OpenAI Whisper API for transcription  
     const transcription = await openai.audio.transcriptions.create({  
       file: fileStream, 
