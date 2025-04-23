@@ -16,6 +16,7 @@ const openai = new OpenAI({
 });  
 
 app.use(cors()); // Allows any frontend to access (dev only; restrict for production!)  
+app.use('/uploads', express.static('uploads'));  // Serve static files from the uploads directory
 
 app.post('/transcribe', upload.single('file'), async (req, res) => {  
   try {  
