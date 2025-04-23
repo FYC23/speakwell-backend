@@ -1,4 +1,4 @@
-// server.js  
+// server2.js  
 
 require('dotenv').config(); // Loads .env contents into process.env  
 
@@ -21,20 +21,26 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
   try {  
     const filePath = req.file.path;  
     const fileName = req.file.originalname;
+    const fileMime = req.file.mimetype;
 
-    const fileStream = fs.createReadStream(filePath);
+    const audioBuffer = fs.readFileSync(filePath);
+
+    fs.unlinkSync(filePath); // Delete temp file after processing
 
     console.log('File:', req.file);
 
     // Send the file to OpenAI Whisper API for transcription  
     const transcription = await openai.audio.transcriptions.create({  
-      file: fileStream, 
-      // model: "whisper-1",  
+      file: {
+        value: audioBuffer,  
+        options: {  
+          filename: fileName,       // e.g. "audio.mp3"  
+          contentType: fileMime,    // e.g. "audio/mpeg"  
+        }  
+      },
       model: "gpt-4o-mini-transcribe",
       response_format: "text", // or "json"  
     });  
-
-    fs.unlinkSync(filePath); // Delete temp file after processing  
 
     // Return the transcript (with fallback, in case .text is missing)  
     res.json({ transcript: transcription.text || transcription });  
