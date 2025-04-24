@@ -54,7 +54,9 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
       // file: fileStream, 
       file: wavStream,
       // model: "whisper-1",  
-      model: "gpt-4o-mini-transcribe",
+      // model: "gpt-4o-mini-transcribe",
+      model: "gpt-4o-transcribe",
+      prompt: "The following voice recording comes from a benchmarking text for a stuttering person, and will likely contain stuttering. Make sure to transcribe as close to verbatim as possible (e.g., if the user says \'ch ch child\', then you should transcribe it as such).",
       response_format: "text", // or "json"  
     });  
 
